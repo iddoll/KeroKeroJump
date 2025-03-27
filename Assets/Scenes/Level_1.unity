@@ -933,6 +933,10 @@ PrefabInstance:
       propertyPath: lilyType
       value: 2
       objectReference: {fileID: 0}
+    - target: {fileID: 2132377184708943134, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: youMissedFliesTxt
+      value: 
+      objectReference: {fileID: 834193216}
     - target: {fileID: 3392021947523857160, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
       propertyPath: m_LocalPosition.y
       value: 0
@@ -1538,7 +1542,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!224 &834193217
 RectTransform:
   m_ObjectHideFlags: 0
