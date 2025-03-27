@@ -212,15 +212,15 @@ public class FrogJump : MonoBehaviour
 
     public void CollectFly()
     {
-        flyCount++;
-        UpdateFlyUI();
+        //flyCount++;
+        //UpdateFlyUI();
     }
 
-    private void UpdateFlyUI()
-    {
-        if (flyText != null)
-        {
-            flyText.text = "Flies: " + flyCount;
-        }
-    }
+    //private void UpdateFlyUI()
+    //{
+    //    if (flyText != null)
+    //    {
+    //        flyText.text = "Flies: " + flyCount;
+    //    }
+    //}
 }
