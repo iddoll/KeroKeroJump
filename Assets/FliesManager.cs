@@ -5,6 +5,7 @@ public class FliesManager : MonoBehaviour
     public static int count;
 
     FlyCountText textDisplay;
+    AudioClip clipSpawnFly;
 
     private void Awake()
     {
