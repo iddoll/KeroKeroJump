@@ -8,6 +8,9 @@ public class LilyPad : MonoBehaviour
     public Sprite brokenLilyPadSprite;
     public Animator arrowAnimator;
 
+    public GameObject youMissedFliesTxt;
+
+
     public enum LilyType
     {
         Delayed,
@@ -95,8 +98,14 @@ public class LilyPad : MonoBehaviour
             case LilyType.WinPad:
                 if (frogOnCheckPoint)
                 {
-                    LoadNextLevel();
+                    if (FindObjectsByType<Fly>(FindObjectsSortMode.None).Length == 0)
+                        LoadNextLevel();
+                    else
+                    {
+                        youMissedFliesTxt.gameObject.SetActive(true);
+                    }
                 }
+
                 break;
         }
     }
