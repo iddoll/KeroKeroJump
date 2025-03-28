@@ -33,6 +33,10 @@ public class SoundManager : MonoBehaviour
     }
     public void PlayEffect(AudioClip clip)
     {
-        this.sources[2].PlayOneShot(clip);
+        float lastCliplen = 0;
+        if (this.sources[2].clip != null)
+            lastCliplen = this.sources[2].clip.length;
+        this.sources[2].clip = clip;
+        this.sources[2].Play(System.Convert.ToUInt64(lastCliplen));
     }
 }

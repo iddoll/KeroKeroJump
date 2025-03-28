@@ -21,6 +21,13 @@ public class FrogJump : MonoBehaviour
     public int flyCount = 0;
     public TMP_Text flyText; // Призначте цей об'єкт в Inspector
 
+    [Header("Sound")]
+    [SerializeField] private AudioClip failJumpSound;
+    [SerializeField] private AudioClip successJumpSound;
+    [SerializeField] private AudioClip jumpSound;
+    [SerializeField] private AudioClip sinkSound;
+
+
     void Start()
     {
         frogCollider = GetComponent<Collider2D>();
@@ -70,17 +77,22 @@ public class FrogJump : MonoBehaviour
 
                 LilyPad targetLilyPad = clicked.GetComponent<LilyPad>();
                 if (targetLilyPad != null && targetLilyPad.isBroken)
+                {
+                    SoundManager.instance.PlayEffect(failJumpSound);
                     return;
+                }
 
                 Vector2 direction = ((Vector2)lilyCentre.position - (Vector2)transform.position).normalized;
 
                 if (CanJumpTo(lilyCentre.position) && currentLilyPad != null && currentLilyPad.IsDirectionAllowed(direction))
                 {
+                    SoundManager.instance.PlayEffect(jumpSound);
                     FlipToDirection(lilyCentre.position);
                     StartCoroutine(JumpTo(lilyCentre.position));
                 }
                 else
                 {
+                    SoundManager.instance.PlayEffect(failJumpSound);
                     Debug.Log("Jump not allowed: current lily doesn't permit this direction.");
                 }
             }
@@ -146,6 +158,7 @@ public class FrogJump : MonoBehaviour
 
         Vector2 start = transform.position;
         float t = 0f;
+        SoundManager.instance.PlayEffect(successJumpSound);
 
         while (t < 1f)
         {
@@ -189,6 +202,7 @@ public class FrogJump : MonoBehaviour
 
     public void GameOver()
     {
+        SoundManager.instance.PlayEffect(sinkSound);
         isGameOver = true;
         animator.SetTrigger("SinkToWater");
         StopAllCoroutines();

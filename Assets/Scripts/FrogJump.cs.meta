@@ -1,2 +1,16 @@
 fileFormatVersion: 2
 guid: c287c4744823b874d914f94db0f7c83d
+MonoImporter:
+  externalObjects: {}
+  serializedVersion: 2
+  defaultReferences:
+  - flyText: {instanceID: 0}
+  - failJumpSound: {fileID: 8300000, guid: de3a7b6b62ed5d248847d351a9a59aa3, type: 3}
+  - successJumpSound: {fileID: 8300000, guid: 67e8109c80773514fb941bf9fd9e1f93, type: 3}
+  - jumpSound: {fileID: 8300000, guid: e099297649345df4f92b633c5b4f1e0b, type: 3}
+  - sinkSound: {fileID: 8300000, guid: 0bc1b7274c73bef4fb5e50e0bcc010ce, type: 3}
+  executionOrder: 0
+  icon: {instanceID: 0}
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
