@@ -3,6 +3,7 @@ using UnityEngine;
 public class FliesManager : MonoBehaviour
 {
     public static int count;
+    public static int eaten;
 
     FlyCountText textDisplay;
     AudioClip clipSpawnFly;
@@ -14,6 +15,7 @@ public class FliesManager : MonoBehaviour
     }
     private void Start()
     {
+        eaten = 0;
         UpdateFlyCount();
     }
 
