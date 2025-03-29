@@ -12,7 +12,7 @@ public class MenuManager : MonoBehaviour
 
     public void PlayGame()
     {
-        SceneManager.LoadScene("TrainingLevelScene"); // Запускаємо тренувальний рівень
+        levelPanel.SetActive(true); // Показуємо панель вибору рівнів
     }
 
     public void ExitGame()
@@ -21,18 +21,13 @@ public class MenuManager : MonoBehaviour
         Application.Quit();
     }
 
-    public void ShowLevels()
-    {
-        levelPanel.SetActive(true); // Відкриваємо панель рівнів
-    }
-
-    public void HideLevels()
-    {
-        levelPanel.SetActive(false); // Ховаємо панель рівнів
-    }
-
     public void LoadLevel(string levelName)
     {
         SceneManager.LoadScene(levelName); // Завантажуємо обраний рівень
+    }
+
+    public void BackToMenu()
+    {
+        levelPanel.SetActive(false); // Ховаємо панель рівнів
     }
 }

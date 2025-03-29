@@ -215,8 +215,17 @@ public class FrogJump : MonoBehaviour
         }
 
         frogCollider.enabled = false;
-        Destroy(gameObject, 1f);
+        StartCoroutine(HandleGameOverSequence());
+
     }
+
+    private IEnumerator HandleGameOverSequence()
+    {
+        PlayerPrefs.SetString("LastLevel", UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
+        yield return new WaitForSeconds(1f); // Чекаємо завершення анімації
+        UnityEngine.SceneManagement.SceneManager.LoadScene("AfterDeathScene");
+    }
+
 
     bool IsInWater()
     {
