@@ -39,7 +39,8 @@ public class FrogAndFlyAnimation : MonoBehaviour
 
             // Повертаємо жабку та муху у напрямку наступної точки
             RotateTowards(frog, frogPoints[nextFrogIndex].position);
-            RotateTowards(fly, flyPoints[nextFlyIndex].position);
+            RotateTowards(fly, flyPoints[nextFlyIndex].position, true); // <== тут додано "true"
+
 
             // Рух жабки та мухи одночасно
             yield return StartCoroutine(MoveObjects(frog, frogPoints[nextFrogIndex].position,
@@ -99,15 +100,18 @@ public class FrogAndFlyAnimation : MonoBehaviour
         }
     }
 
-    void RotateTowards(Transform obj, Vector3 target)
+    void RotateTowards(Transform obj, Vector3 target, bool flip180 = false)
     {
         Vector3 direction = target - obj.position;
         if (direction != Vector3.zero)
         {
             float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
+            if (flip180)
+                angle += 180f;
             obj.rotation = Quaternion.Euler(0, 0, angle);
         }
     }
+
 
     bool IsLilyPadPoint(int index, int[] lilyPadIndexes)
     {

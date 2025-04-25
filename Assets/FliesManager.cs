@@ -16,11 +16,12 @@ public class FliesManager : MonoBehaviour
     private void Start()
     {
         eaten = 0;
-        UpdateFlyCount();
+        textDisplay.UpdateText();
     }
 
     public void UpdateFlyCount()
     {
+        eaten++;
         textDisplay.UpdateText();
     }
 

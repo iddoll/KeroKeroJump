@@ -144,6 +144,12 @@ public class LilyPad : MonoBehaviour
         switch (currentScene)
         {
             case "TrainingLevelScene":
+                nextScene = "TrainingLevelScene2";
+                break;
+            case "TrainingLevelScene2":
+                nextScene = "TrainingLevelScene3";
+                break;
+            case "TrainingLevelScene3":
                 nextScene = "Level_1";
                 break;
             case "Level_1":
