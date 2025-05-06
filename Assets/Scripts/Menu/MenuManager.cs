@@ -3,16 +3,18 @@ using UnityEngine.SceneManagement;
 
 public class MenuManager : MonoBehaviour
 {
-    public GameObject levelPanel; // Панель вибору рівня
+    public GameObject levelPanel1; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+    public GameObject levelPanel2; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
     void Start()
     {
-        levelPanel.SetActive(false); // Спочатку приховуємо панель
+        levelPanel1.SetActive(false); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+        levelPanel2.SetActive(false);
     }
 
     public void PlayGame()
     {
-        levelPanel.SetActive(true); // Показуємо панель вибору рівнів
+        levelPanel1.SetActive(true); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     }
 
     public void ExitGame()
@@ -23,11 +25,18 @@ public class MenuManager : MonoBehaviour
 
     public void LoadLevel(string levelName)
     {
-        SceneManager.LoadScene(levelName); // Завантажуємо обраний рівень
+        SceneManager.LoadScene(levelName); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     }
 
     public void BackToMenu()
     {
-        levelPanel.SetActive(false); // Ховаємо панель рівнів
+        levelPanel1.SetActive(false); // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+        levelPanel2.SetActive(false);
+    }
+
+    public void NextLevelPage()
+    {
+        levelPanel2.SetActive(true);
+        levelPanel1.SetActive(false);
     }
 }
