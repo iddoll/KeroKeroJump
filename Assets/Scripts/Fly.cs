@@ -2,20 +2,21 @@ using UnityEngine;
 
 public class Fly : MonoBehaviour
 {
-    FliesManager manager;
-
-    private void Awake()
-    {
-        manager = FindAnyObjectByType<FliesManager>();
-    }
+    bool collected;
 
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if (other.CompareTag("Frog")) // Переконайтеся, що у жаби тег "Frog"
-        {
-            manager.UpdateFlyCount();
-            //other.GetComponent<FrogJump>().CollectFly();
-            Destroy(gameObject);
-        }
+        if (other.CompareTag("Frog"))
+            Collect();
+    }
+
+    public void Collect()
+    {
+        if (collected)
+            return;
+
+        collected = true;
+        FliesManager.RegisterEaten();
+        Destroy(gameObject);
     }
 }

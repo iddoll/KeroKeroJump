@@ -27,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 7248151025090303979}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -1, w: 0}
-  m_LocalPosition: {x: -1.333333, y: 2.666667, z: -1}
+  m_LocalPosition: {x: 0, y: 0, z: -1}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -123,6 +123,10 @@ PrefabInstance:
       value: LeftLily
       objectReference: {fileID: 0}
     - target: {fileID: 5886393045550985502, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
+      propertyPath: frog
+      value: 
+      objectReference: {fileID: 6037268601148638261, guid: 8e3b61afd8e6337428246d906cc3fec3, type: 3}
+    - target: {fileID: 5886393045550985502, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
       propertyPath: breakTime
       value: 2
       objectReference: {fileID: 0}
@@ -131,20 +135,24 @@ PrefabInstance:
       value: 
       objectReference: {fileID: 8721333132303677391}
     - target: {fileID: 5886393045550985502, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
+      propertyPath: arrowAnimator
+      value: 
+      objectReference: {fileID: 5300652999109819972}
+    - target: {fileID: 5886393045550985502, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
       propertyPath: brokenLilyPadSprite
       value: 
       objectReference: {fileID: 21300000, guid: 3c7e22f5e77be5c4a9ce2e2b81f8c24a, type: 3}
     - target: {fileID: 7152304525070420053, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
       propertyPath: m_LocalScale.x
-      value: 1.5000002
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 7152304525070420053, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
       propertyPath: m_LocalScale.y
-      value: 1.5000002
+      value: 1.2
       objectReference: {fileID: 0}
     - target: {fileID: 7152304525070420053, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 7152304525070420053, guid: 8cdc8be3a96d7664980c9235c796219d, type: 3}
       propertyPath: m_LocalPosition.y

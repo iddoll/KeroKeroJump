@@ -10,15 +10,15 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 4372626649355253885, guid: f6df413f6e8b04048af788438bd113ac, type: 3}
       propertyPath: m_Name
-      value: LeftLily (2) Variant
+      value: UpLily
       objectReference: {fileID: 0}
     - target: {fileID: 8754859275543849106, guid: f6df413f6e8b04048af788438bd113ac, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 7.59
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8754859275543849106, guid: f6df413f6e8b04048af788438bd113ac, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.65
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8754859275543849106, guid: f6df413f6e8b04048af788438bd113ac, type: 3}
       propertyPath: m_LocalPosition.z

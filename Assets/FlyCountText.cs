@@ -6,6 +6,9 @@ public class FlyCountText : MonoBehaviour
 {
     public void UpdateText()
     {
-        GetComponent<TextMeshProUGUI>().text = string.Concat(FliesManager.eaten, "/", FliesManager.count.ToString());
+        var label = GetComponent<TextMeshProUGUI>();
+        if (label == null)
+            return;
+        label.text = FliesManager.eaten + "/" + FliesManager.count;
     }
 }

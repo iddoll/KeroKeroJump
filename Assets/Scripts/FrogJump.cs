@@ -19,7 +19,7 @@ public class FrogJump : MonoBehaviour
     private LilyPad currentLilyPad;
 
     public int flyCount = 0;
-    public TMP_Text flyText; // ��������� ��� ��'��� � Inspector
+    public TMP_Text flyText; // Інтерфейс для лічильника мух
 
     [Header("Sound")]
     [SerializeField] private AudioClip failJumpSound;
@@ -35,13 +35,18 @@ public class FrogJump : MonoBehaviour
         frogRigidbody = GetComponent<Rigidbody2D>();
         frogCheck = transform.Find("FrogCheck");
 
+        // Ігноруємо колізії жабки з усіма кувшинками на початку
+        // Це запобігає випадковому спрацюванню OnCollisionEnter2D
         Collider2D[] lilyPads = GameObject.FindGameObjectsWithTag("LilyPad")
                                          .Select(obj => obj.GetComponent<Collider2D>())
                                          .ToArray();
 
         foreach (Collider2D lilyPad in lilyPads)
         {
-            Physics2D.IgnoreCollision(frogCollider, lilyPad, true);
+            if (lilyPad != null)
+            {
+                Physics2D.IgnoreCollision(frogCollider, lilyPad, true);
+            }
         }
     }
 
@@ -57,13 +62,14 @@ public class FrogJump : MonoBehaviour
         }
 
         UpdateCurrentLilyPad();
+        CollectFlies(transform.position);
 
         if (Input.GetMouseButtonDown(0))
         {
             Vector2 mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Collider2D clicked = Physics2D.OverlapPoint(mousePos);
 
-            // ���� ��������� �� ����, ������ �������� �� ���
+            // Якщо клікнуто на муху, знаходимо кувшинку під нею
             if (clicked != null && clicked.CompareTag("Fly"))
             {
                 clicked = FindLilyPadUnderFly(mousePos);
@@ -76,14 +82,19 @@ public class FrogJump : MonoBehaviour
                     return;
 
                 LilyPad targetLilyPad = clicked.GetComponent<LilyPad>();
+                // Перевірка, чи не зламана цільова кувшинка
                 if (targetLilyPad != null && targetLilyPad.isBroken)
                 {
                     SoundManager.instance.PlayEffect(failJumpSound);
                     return;
                 }
 
+                // Визначаємо напрямок стрибка
                 Vector2 direction = ((Vector2)lilyCentre.position - (Vector2)transform.position).normalized;
 
+                // Перевіряємо, чи дозволено стрибок:
+                // 1. Чи є цільова кувшинка на відстані стрибка
+                // 2. Чи дозволяє поточна кувшинка стрибок у цьому напрямку
                 if (CanJumpTo(lilyCentre.position) && currentLilyPad != null && currentLilyPad.IsDirectionAllowed(direction))
                 {
                     SoundManager.instance.PlayEffect(jumpSound);
@@ -99,7 +110,7 @@ public class FrogJump : MonoBehaviour
         }
     }
 
-    // ��������� ����� ��� ������ �������� �� �����
+    // Пошук кувшинки, якщо гравець клікнув на муху над нею
     Collider2D FindLilyPadUnderFly(Vector2 position)
     {
         Collider2D[] hits = Physics2D.OverlapPointAll(position);
@@ -107,12 +118,13 @@ public class FrogJump : MonoBehaviour
         {
             if (hit.CompareTag("LilyPad"))
             {
-                return hit; // ��������� ����� �������� ��������
+                return hit; // Повертаємо перший знайдений колайдер
             }
         }
         return null;
     }
 
+    // Визначаємо, на якій кувшинці зараз знаходиться жабка
     void UpdateCurrentLilyPad()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(frogCheck.position, 0.1f);
@@ -124,10 +136,10 @@ public class FrogJump : MonoBehaviour
                 return;
             }
         }
-
         currentLilyPad = null;
     }
 
+    // Перевіряємо, чи цільова позиція є в межах дозволеного стрибка
     bool CanJumpTo(Vector2 targetPos)
     {
         foreach (Transform check in checkPoints)
@@ -140,6 +152,7 @@ public class FrogJump : MonoBehaviour
         return false;
     }
 
+    // Повертаємо жабку в напрямку стрибка
     void FlipToDirection(Vector2 targetPos)
     {
         Vector2 direction = targetPos - (Vector2)transform.position;
@@ -170,6 +183,19 @@ public class FrogJump : MonoBehaviour
         transform.position = targetPos;
         isJumping = false;
         animator.SetBool("isJumping", false);
+        CollectFlies(targetPos);
+    }
+
+    void CollectFlies(Vector2 landing)
+    {
+        Fly[] flies = FindObjectsByType<Fly>(FindObjectsSortMode.None);
+        for (int i = 0; i < flies.Length; i++)
+        {
+            if (flies[i] == null)
+                continue;
+            if (Vector2.Distance(flies[i].transform.position, landing) < 1.5f)
+                flies[i].Collect();
+        }
     }
 
     void OnCollisionEnter2D(Collision2D collision)
@@ -189,6 +215,7 @@ public class FrogJump : MonoBehaviour
         }
     }
 
+    // Перевіряємо, чи знаходиться жабка на кувшинці
     bool IsOnLilyPad()
     {
         Collider2D[] hits = Physics2D.OverlapCircleAll(frogCheck.position, 0.1f);
@@ -214,36 +241,41 @@ public class FrogJump : MonoBehaviour
             frogRigidbody.constraints = RigidbodyConstraints2D.FreezeAll;
         }
 
-        frogCollider.enabled = false;
-        StartCoroutine(HandleGameOverSequence());
+        if (frogCollider != null)
+        {
+            frogCollider.enabled = false;
+        }
 
+        StartCoroutine(HandleGameOverSequence());
     }
 
     private IEnumerator HandleGameOverSequence()
     {
+        // Зберігаємо назву поточної сцени, щоб після перезапуску можна було на неї повернутися
         PlayerPrefs.SetString("LastLevel", UnityEngine.SceneManagement.SceneManager.GetActiveScene().name);
-        yield return new WaitForSeconds(1f); // ������ ���������� ��������
+        yield return new WaitForSeconds(1f); // Чекаємо анімацію
         UnityEngine.SceneManagement.SceneManager.LoadScene("AfterDeathScene");
     }
 
-
+    // Перевіряємо, чи жабка знаходиться у воді
     bool IsInWater()
     {
+        // Використовуємо OverlapCircle для перевірки наявності води під жабкою
         Collider2D hit = Physics2D.OverlapCircle(frogCheck.position, 0.1f, LayerMask.GetMask("Water"));
         return hit != null;
     }
 
     public void CollectFly()
     {
-        //flyCount++;
-        //UpdateFlyUI();
+        flyCount++;
+        UpdateFlyUI();
     }
 
-    //private void UpdateFlyUI()
-    //{
-    //    if (flyText != null)
-    //    {
-    //        flyText.text = "Flies: " + flyCount;
-    //    }
-    //}
+    private void UpdateFlyUI()
+    {
+        if (flyText != null)
+        {
+            flyText.text = "Flies: " + flyCount;
+        }
+    }
 }

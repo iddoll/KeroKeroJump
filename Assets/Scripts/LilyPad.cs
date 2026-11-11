@@ -1,172 +1,262 @@
 using UnityEngine;
-using UnityEngine.SceneManagement; // ������ �������� ��� ��������� �������
+using UnityEngine.SceneManagement;
+using System.Collections;
+using TMPro;
+using Game.Level; // Додаємо, щоб використовувати ваші enum
 
 public class LilyPad : MonoBehaviour
 {
-    public GameObject frog;
+    public FrogJump frog; // Замінюємо посилання на GameObject на сам скрипт
     public Transform checkPoint;
     public Sprite brokenLilyPadSprite;
     public Animator arrowAnimator;
 
     public GameObject youMissedFliesTxt;
 
+    // Використовуємо типи з LevelConfig
+    public LilyPadType lilyPadType;
+    public LilyPadDirection lilyPadDirection;
 
-    public enum LilyType
+    public Sprite crackedLilyPadSprite;
+
+    enum PadWear
     {
-        Delayed,
-        DelayedAfterExit,
-        WinPad // ������ ��� WinPad
+        Intact,
+        Cracked,
+        Broken
     }
 
-    public enum ArrowType
-    {
-        Horizontal,
-        Vertical,
-        AllDirections
-    }
-
-    public LilyType lilyType;
-    public ArrowType arrowType;
+    PadWear wear = PadWear.Intact;
+    bool frogWasOnPad;
+    bool gateTouched;
+    bool winOpened;
 
     private SpriteRenderer spriteRenderer;
     private Collider2D lilyCollider;
-    private Rigidbody2D frogRigidbody;
     public bool isBroken = false;
-    private bool frogOnCheckPoint = false;
-    private bool frogWasOnCheckPoint = false;
     private float timer = 0f;
-    public float breakTime = 3f;
+    public float breakTime = 2f;
+
+    private void Awake()
+    {
+        // Присвоюємо посилання на жабу при створенні рівня
+        frog = FindObjectOfType<FrogJump>();
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        lilyCollider = GetComponent<Collider2D>();
+    }
 
     void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        lilyCollider = GetComponent<Collider2D>();
-        if (frog != null)
-        {
-            frogRigidbody = frog.GetComponent<Rigidbody2D>();
-        }
+        // Необхідно, щоб префаби мали відповідні компоненти,
+        // які LevelGenerator може налаштувати після спавну
+    }
 
-        if (arrowAnimator != null)
-        {
-            string triggerName = GetTriggerName();
-            if (!string.IsNullOrEmpty(triggerName))
-            {
-                arrowAnimator.SetTrigger(triggerName);
-            }
-        }
+    public void Prepare(Sprite cracked, Sprite sunk)
+    {
+        if (cracked != null)
+            crackedLilyPadSprite = cracked;
+        if (brokenLilyPadSprite == null && sunk != null)
+            brokenLilyPadSprite = sunk;
+        if (checkPoint == null)
+            checkPoint = transform.Find("LilyCentre");
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        if (spriteRenderer == null)
+            spriteRenderer = GetComponentInChildren<SpriteRenderer>();
+
+        breakTime = 2f;
+        if (lilyPadType == LilyPadType.Breakable || lilyPadType == LilyPadType.Gate)
+            BecomeCracked();
     }
 
     void Update()
     {
-        if (isBroken)
+        if (isBroken || wear == PadWear.Broken)
             return;
 
-        frogOnCheckPoint = FrogOnCheckPoint();
+        ResolveFrog();
+        bool frogHere = FrogOnCheckPoint();
 
-        switch (lilyType)
+        if (lilyPadType == LilyPadType.WinPad)
         {
-            case LilyType.Delayed:
-                if (frogOnCheckPoint && !isBroken)
-                {
-                    timer += Time.deltaTime;
-                    if (timer >= breakTime)
-                    {
-                        ChangeSprite();
-                    }
-                }
-                else if (!frogOnCheckPoint && !isBroken)
-                {
-                    timer = 0f;
-                }
-                break;
-
-            case LilyType.DelayedAfterExit:
-                if (frogWasOnCheckPoint && !isBroken)
-                {
-                    timer += Time.deltaTime;
-                    if (timer >= breakTime)
-                    {
-                        ChangeSprite();
-                    }
-                }
-                else if (frogOnCheckPoint)
-                {
-                    frogWasOnCheckPoint = true;
-                }
-                break;
-
-            case LilyType.WinPad:
-                if (frogOnCheckPoint)
-                {
-                    if (FindObjectsByType<Fly>(FindObjectsSortMode.None).Length == 0)
-                        LoadNextLevel();
-                    else
-                    {
-                        youMissedFliesTxt.gameObject.SetActive(true);
-                    }
-                }
-
-                break;
+            if (frogHere && FliesManager.AllCollected)
+            {
+                HideMissedNotice();
+                OpenWinMenu();
+            }
+            else if (frogHere)
+                ShowMissedNotice();
+            else
+                HideMissedNotice();
+            return;
         }
+
+        if (lilyPadType == LilyPadType.StartPad)
+            return;
+
+        if (lilyPadType == LilyPadType.Gate)
+        {
+            if (frogHere)
+                gateTouched = true;
+            if (gateTouched)
+            {
+                timer += Time.deltaTime;
+                if (timer >= breakTime)
+                    BreakFully(frogHere);
+            }
+
+            frogWasOnPad = frogHere && wear != PadWear.Broken;
+            return;
+        }
+
+        if (frogHere)
+        {
+            timer += Time.deltaTime;
+            if (timer >= breakTime)
+            {
+                timer = 0f;
+                if (wear == PadWear.Intact)
+                    BecomeCracked();
+                else
+                    BreakFully(sinkFrog: true);
+            }
+        }
+        else if (frogWasOnPad)
+        {
+            if (wear == PadWear.Cracked)
+                BreakFully(sinkFrog: false);
+            else
+                timer = 0f;
+        }
+
+        frogWasOnPad = frogHere && wear != PadWear.Broken;
     }
 
-    void ChangeSprite()
+    void ResolveFrog()
     {
+        if (frog != null && frog.gameObject.scene.isLoaded)
+            return;
+
+        frog = FindAnyObjectByType<FrogJump>();
+        if (checkPoint == null)
+            checkPoint = transform.Find("LilyCentre");
+    }
+
+    void BecomeCracked()
+    {
+        wear = PadWear.Cracked;
+        timer = 0f;
+        if (spriteRenderer != null && crackedLilyPadSprite != null)
+            spriteRenderer.sprite = crackedLilyPadSprite;
+    }
+
+    void BreakFully(bool sinkFrog)
+    {
+        wear = PadWear.Broken;
         isBroken = true;
-        spriteRenderer.sprite = brokenLilyPadSprite;
+        timer = 0f;
+
+        if (spriteRenderer != null && brokenLilyPadSprite != null)
+            spriteRenderer.sprite = brokenLilyPadSprite;
 
         if (lilyCollider != null)
             lilyCollider.enabled = false;
 
-        if (FrogOnCheckPoint())
-        {
-            frog.GetComponent<FrogJump>().GameOver();
-        }
-
-        this.enabled = false;
+        if (sinkFrog && FrogOnCheckPoint() && frog != null)
+            frog.GameOver();
     }
 
     bool FrogOnCheckPoint()
     {
-        if (frog != null && checkPoint != null)
-        {
-            float distance = Vector2.Distance(frog.transform.position, checkPoint.position);
-            return distance < 0.5f;
-        }
-        return false;
+        if (frog == null)
+            return false;
+
+        Vector2 point = checkPoint != null ? (Vector2)checkPoint.position : (Vector2)transform.position;
+        return Vector2.Distance(frog.transform.position, point) < 0.5f;
     }
 
-    void LoadNextLevel()
+    void OpenWinMenu()
     {
-        string currentScene = SceneManager.GetActiveScene().name;
-        string nextScene = "";
+        if (winOpened)
+            return;
 
-        switch (currentScene)
+        winOpened = true;
+        var generator = FindAnyObjectByType<LevelGenerator>();
+        if (generator != null)
+            GameProgress.Complete(generator.levelToGenerate);
+        WinMenuPanel.Show(generator);
+    }
+
+    public static void HideMissedNotice()
+    {
+        Transform panel = FindMissedPanel();
+        if (panel != null)
+            panel.gameObject.SetActive(false);
+    }
+
+    static string missedTemplate;
+
+    static void ShowMissedNotice()
+    {
+        Transform panel = FindMissedPanel();
+        if (panel == null)
+            return;
+
+        panel.gameObject.SetActive(true);
+        var label = panel.GetComponentInChildren<TMP_Text>(true);
+        if (label == null)
+            return;
+
+        if (string.IsNullOrEmpty(missedTemplate))
         {
-            case "TrainingLevelScene":
-                nextScene = "TrainingLevelScene2";
-                break;
-            case "TrainingLevelScene2":
-                nextScene = "TrainingLevelScene3";
-                break;
-            case "TrainingLevelScene3":
-                nextScene = "Level_1";
-                break;
-            case "Level_1":
-                nextScene = "Level_2";
-                break;
-            case "Level_2":
-                nextScene = "Level_3";
-                break;
-            case "Level_3":
-                nextScene = "WinMenu";
-                break;
+            missedTemplate = label.text;
+            if (string.IsNullOrEmpty(missedTemplate) || !missedTemplate.Contains("{n}"))
+                missedTemplate = "Залишилось мух: {n}";
         }
 
-        if (!string.IsNullOrEmpty(nextScene))
+        int left = Mathf.Max(0, FliesManager.count - FliesManager.eaten);
+        label.text = missedTemplate.Replace("{n}", left.ToString());
+    }
+
+    static Transform FindMissedPanel()
+    {
+        var canvases = FindObjectsByType<Canvas>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+        for (int i = 0; i < canvases.Length; i++)
         {
-            Debug.Log($"Frog reached WinPad! Loading {nextScene}...");
-            SceneManager.LoadScene(nextScene);
+            Transform[] all = canvases[i].GetComponentsInChildren<Transform>(true);
+            for (int j = 0; j < all.Length; j++)
+            {
+                if (all[j].name == "youMissedFlies")
+                    return all[j];
+            }
+        }
+        return null;
+    }
+
+    // Метод для встановлення властивостей після спавну
+    public void SetProperties(LilyPadType type, LilyPadDirection direction)
+    {
+        this.lilyPadType = type;
+        this.lilyPadDirection = direction;
+
+        if (arrowAnimator != null)
+        {
+            // Скидаємо всі тригери
+            arrowAnimator.ResetTrigger("isVertical");
+            arrowAnimator.ResetTrigger("isHorizontal");
+
+            switch (lilyPadDirection)
+            {
+                case LilyPadDirection.Vertical:
+                    arrowAnimator.SetTrigger("isVertical");
+                    break;
+                case LilyPadDirection.Horizontal:
+                    arrowAnimator.SetTrigger("isHorizontal");
+                    break;
+                case LilyPadDirection.All:
+                    // Нічого не вмикаємо → анімація "без стрілки"
+                    break;
+            }
         }
     }
 
@@ -174,43 +264,24 @@ public class LilyPad : MonoBehaviour
     {
         direction = direction.normalized;
 
-        Vector2[] allowedDirections;
-        switch (arrowType)
+        switch (lilyPadDirection)
         {
-            case ArrowType.Horizontal:
-                allowedDirections = new Vector2[] { Vector2.left, Vector2.right };
-                break;
-            case ArrowType.Vertical:
-                allowedDirections = new Vector2[] { Vector2.up, Vector2.down };
-                break;
-            case ArrowType.AllDirections:
-                return true;
+            case LilyPadDirection.Vertical:
+                return Vector2.Dot(direction, Vector2.up) > 0.9f ||
+                       Vector2.Dot(direction, Vector2.down) > 0.9f;
+
+            case LilyPadDirection.Horizontal:
+                return Vector2.Dot(direction, Vector2.left) > 0.9f ||
+                       Vector2.Dot(direction, Vector2.right) > 0.9f;
+
+            case LilyPadDirection.All:
+                return true; // всі сторони дозволені
+
             default:
                 return false;
         }
-
-        foreach (var allowedDirection in allowedDirections)
-        {
-            if (Vector2.Dot(direction, allowedDirection) > 0.9f)
-                return true;
-        }
-
-        return false;
     }
-
-    private string GetTriggerName()
-    {
-        switch (arrowType)
-        {
-            case ArrowType.Horizontal:
-                return "isHorizontal";
-            case ArrowType.Vertical:
-                return "isVertical";
-            default:
-                return ""; // ���� AllDirections, ������ �� �������
-        }
-    }
-
+    
     void LateUpdate()
     {
         if (arrowAnimator != null)

@@ -10,11 +10,11 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 1127436364662491199, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 4.3981953
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1127436364662491199, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.894359
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 1127436364662491199, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}
       propertyPath: m_LocalPosition.z
@@ -50,10 +50,12 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5364991686050715856, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}
       propertyPath: m_Name
-      value: UpCrash Variant
+      value: LeftCrash
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
-    m_RemovedGameObjects: []
+    m_RemovedComponents:
+    - {fileID: 5207162144644106406, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}
+    m_RemovedGameObjects:
+    - {fileID: 125474465099543954, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 73b62a1f63cce4b4aa408b89c001847d, type: 3}

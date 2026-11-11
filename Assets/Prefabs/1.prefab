@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 8588603904689690732}
   - component: {fileID: 5886393045550985502}
   - component: {fileID: 7631840554760558437}
+  - component: {fileID: -500831061671684946}
   m_Layer: 0
   m_Name: 1
   m_TagString: LilyPad
@@ -30,7 +31,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: -0.7071068, w: 0.7071068}
   m_LocalPosition: {x: 0, y: 0, z: -0.08515042}
-  m_LocalScale: {x: 1.5, y: 1.5, z: 1.5}
+  m_LocalScale: {x: 1.2, y: 1.2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 7148887665773958920}
@@ -139,9 +140,15 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 786e0d711b40a3f4f83fc657056a3ce8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  frog: {fileID: 0}
-  brokenLilyPadPrefab: {fileID: 6834941682005337434, guid: 93f85c82757b1c54d8b5783c871b3b92, type: 3}
+  frog: {fileID: 6037268601148638261, guid: 8e3b61afd8e6337428246d906cc3fec3, type: 3}
+  checkPoint: {fileID: 0}
+  brokenLilyPadSprite: {fileID: 0}
+  arrowAnimator: {fileID: 0}
+  youMissedFliesTxt: {fileID: 0}
+  lilyPadType: 0
+  lilyPadDirection: 0
   isBroken: 0
+  breakTime: 3
 --- !u!50 &7631840554760558437
 Rigidbody2D:
   serializedVersion: 5
@@ -169,6 +176,19 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
+--- !u!114 &-500831061671684946
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2779607138565560506}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1c408c1ca1295c644bbe35a0587d20ca, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  targetScale: {x: 1, y: 1, z: 1}
 --- !u!1 &8417872922660317399
 GameObject:
   m_ObjectHideFlags: 0

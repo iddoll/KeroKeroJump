@@ -8,13 +8,33 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: 2132377184708943134, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: frog
+      value: 
+      objectReference: {fileID: 6037268601148638261, guid: 8e3b61afd8e6337428246d906cc3fec3, type: 3}
+    - target: {fileID: 2132377184708943134, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: arrowAnimator
+      value: 
+      objectReference: {fileID: 5838036588226622763}
+    - target: {fileID: 2132377184708943134, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: lilyPadDirection
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3415142059397473365, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: m_LocalScale.x
+      value: 1.2
+      objectReference: {fileID: 0}
+    - target: {fileID: 3415142059397473365, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: m_LocalScale.y
+      value: 1.2
+      objectReference: {fileID: 0}
     - target: {fileID: 3415142059397473365, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
       propertyPath: m_LocalPosition.x
-      value: 9.49
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3415142059397473365, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
       propertyPath: m_LocalPosition.y
-      value: -2.82
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3415142059397473365, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
       propertyPath: m_LocalPosition.z
@@ -48,12 +68,27 @@ PrefabInstance:
       propertyPath: m_LocalEulerAnglesHint.z
       value: 180
       objectReference: {fileID: 0}
+    - target: {fileID: 7254998339025635323, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 7254998339025635323, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 7688831481766687930, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
       propertyPath: m_Name
-      value: UpLily (1) Variant
+      value: DownLily
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 7466270884440095754, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+    - {fileID: -3676647961509610050, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+--- !u!95 &5838036588226622763 stripped
+Animator:
+  m_CorrespondingSourceObject: {fileID: 2275782818510303875, guid: 3d4529f4af2262747af6cc434efd5c4c, type: 3}
+  m_PrefabInstance: {fileID: 5661564810618554280}
+  m_PrefabAsset: {fileID: 0}
