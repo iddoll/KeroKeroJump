@@ -110,7 +110,7 @@ public class LevelGenerator : MonoBehaviour
 
             SpawnFrogOn(startPadInstance);
             SpawnSwamp(levelData);
-            SpawnFlies();
+            SpawnFlies(levelData);
             EnsureHud();
             WakeFliesManager();
             AlignHud();
@@ -428,8 +428,16 @@ public class LevelGenerator : MonoBehaviour
         return null;
     }
 
-    void SpawnFlies()
+    void SpawnFlies(LevelConfig.LevelData levelData)
     {
+        if (levelToGenerate <= 3)
+        {
+            FliesManager.eaten = 0;
+            FliesManager.count = 0;
+            FliesManager.PushText();
+            return;
+        }
+
         GameObject prefab = flyPrefab;
 #if UNITY_EDITOR
         if (prefab == null)
@@ -439,16 +447,15 @@ public class LevelGenerator : MonoBehaviour
             return;
 
         var pads = new System.Collections.Generic.List<Transform>();
-        foreach (Transform child in spawnParent)
+        List<Vector2Int> spots = LevelConfig.FlySpots(levelData);
+        for (int s = 0; s < spots.Count; s++)
         {
-            var pad = child.GetComponent<LilyPad>();
+            Transform pad = spawnParent.Find("Lily_" + spots[s].x + "_" + spots[s].y);
             if (pad == null)
                 continue;
-            if (pad.lilyPadType == LilyPadType.StartPad || pad.lilyPadType == LilyPadType.WinPad || pad.lilyPadType == LilyPadType.Trap)
-                continue;
 
-            Transform centre = child.Find("LilyCentre");
-            pads.Add(centre != null ? centre : child);
+            Transform centre = pad.Find("LilyCentre");
+            pads.Add(centre != null ? centre : pad);
         }
 
         int want = Mathf.Min(3, pads.Count);

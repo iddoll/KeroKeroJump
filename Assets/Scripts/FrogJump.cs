@@ -77,29 +77,21 @@ public class FrogJump : MonoBehaviour
 
             if (clicked != null && clicked.CompareTag("LilyPad"))
             {
-                Transform lilyCentre = clicked.transform.Find("LilyCentre");
-                if (lilyCentre == null)
-                    return;
-
                 LilyPad targetLilyPad = clicked.GetComponent<LilyPad>();
-                // Перевірка, чи не зламана цільова кувшинка
                 if (targetLilyPad != null && targetLilyPad.isBroken)
                 {
                     SoundManager.instance.PlayEffect(failJumpSound);
                     return;
                 }
 
-                // Визначаємо напрямок стрибка
-                Vector2 direction = ((Vector2)lilyCentre.position - (Vector2)transform.position).normalized;
+                Vector2 landing = clicked.transform.position;
+                Vector2 direction = (landing - (Vector2)transform.position).normalized;
 
-                // Перевіряємо, чи дозволено стрибок:
-                // 1. Чи є цільова кувшинка на відстані стрибка
-                // 2. Чи дозволяє поточна кувшинка стрибок у цьому напрямку
-                if (CanJumpTo(lilyCentre.position) && currentLilyPad != null && currentLilyPad.IsDirectionAllowed(direction))
+                if (CanJumpTo(landing) && currentLilyPad != null && currentLilyPad.IsDirectionAllowed(direction))
                 {
                     SoundManager.instance.PlayEffect(jumpSound);
-                    FlipToDirection(lilyCentre.position);
-                    StartCoroutine(JumpTo(lilyCentre.position));
+                    FlipToDirection(landing);
+                    StartCoroutine(JumpTo(landing));
                 }
                 else
                 {
@@ -142,14 +134,14 @@ public class FrogJump : MonoBehaviour
     // Перевіряємо, чи цільова позиція є в межах дозволеного стрибка
     bool CanJumpTo(Vector2 targetPos)
     {
-        foreach (Transform check in checkPoints)
-        {
-            if (Vector2.Distance(check.position, targetPos) < 0.5f)
-            {
-                return true;
-            }
-        }
-        return false;
+        Vector2 delta = targetPos - (Vector2)transform.position;
+        float ax = Mathf.Abs(delta.x);
+        float ay = Mathf.Abs(delta.y);
+        if (ax > 0.6f && ay > 0.6f)
+            return false;
+
+        float along = Mathf.Max(ax, ay);
+        return along > 1.25f && along < 2.75f;
     }
 
     // Повертаємо жабку в напрямку стрибка

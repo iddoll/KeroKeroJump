@@ -42,6 +42,9 @@ namespace Game.Level
 
         public static LevelData Generate(int levelId, int rows, int cols)
         {
+            if (levelId >= 1 && levelId <= 3)
+                return Tutorial(levelId);
+
             rows = Mathf.Max(3, rows);
             cols = Mathf.Max(4, cols);
             Random.InitState(LevelSeeds.For(levelId));
@@ -54,6 +57,58 @@ namespace Game.Level
             }
 
             return Fallback(rows, cols);
+        }
+
+        static LevelData Tutorial(int levelId)
+        {
+            if (levelId == 1)
+            {
+                LevelData straight = Blank(1, 1, 4);
+                Put(straight, 0, 0, LilyPadType.StartPad, LilyPadDirection.Horizontal);
+                Put(straight, 1, 0, LilyPadType.Normal, LilyPadDirection.Horizontal);
+                Put(straight, 2, 0, LilyPadType.Normal, LilyPadDirection.Horizontal);
+                Put(straight, 3, 0, LilyPadType.WinPad, LilyPadDirection.Horizontal);
+                return straight;
+            }
+
+            if (levelId == 2)
+            {
+                LevelData bend = Blank(2, 3, 3);
+                Put(bend, 0, 0, LilyPadType.StartPad, LilyPadDirection.Horizontal);
+                Put(bend, 1, 0, LilyPadType.Normal, LilyPadDirection.Horizontal);
+                Put(bend, 2, 0, LilyPadType.Normal, LilyPadDirection.All);
+                Put(bend, 2, 1, LilyPadType.Normal, LilyPadDirection.Vertical);
+                Put(bend, 2, 2, LilyPadType.WinPad, LilyPadDirection.Vertical);
+                return bend;
+            }
+
+            LevelData crack = Blank(3, 2, 4);
+            Put(crack, 0, 1, LilyPadType.StartPad, LilyPadDirection.Horizontal);
+            Put(crack, 1, 1, LilyPadType.Normal, LilyPadDirection.All);
+            Put(crack, 2, 1, LilyPadType.Normal, LilyPadDirection.Horizontal);
+            Put(crack, 3, 1, LilyPadType.WinPad, LilyPadDirection.Horizontal);
+            Put(crack, 1, 0, LilyPadType.Breakable, LilyPadDirection.Vertical);
+            return crack;
+        }
+
+        static LevelData Blank(int levelId, int rows, int cols)
+        {
+            return new LevelData
+            {
+                levelId = levelId,
+                rows = rows,
+                cols = cols,
+                gridMask = new int[rows, cols],
+                lilyPadTypes = new LilyPadType[rows, cols],
+                lilyPadDirections = new LilyPadDirection[rows, cols]
+            };
+        }
+
+        static void Put(LevelData data, int x, int y, LilyPadType type, LilyPadDirection direction)
+        {
+            data.gridMask[y, x] = 1;
+            data.lilyPadTypes[y, x] = type;
+            data.lilyPadDirections[y, x] = direction;
         }
 
         static LevelData TryGenerate(int levelId, int rows, int cols)
@@ -433,6 +488,140 @@ namespace Game.Level
             if (direction == LilyPadDirection.Horizontal)
                 return step.y == 0;
             return step.x == 0;
+        }
+
+        public static List<Vector2Int> FlySpots(LevelData data)
+        {
+            var spots = new List<Vector2Int>();
+            Vector2Int start = Find(data, LilyPadType.StartPad);
+            Vector2Int win = Find(data, LilyPadType.WinPad);
+            if (start.x < 0 || win.x < 0)
+                return spots;
+
+            var crackId = CrackIds(data);
+            var safe = new HashSet<Vector2Int>();
+            var queue = new Queue<Vector2Int>();
+            queue.Enqueue(start);
+            safe.Add(start);
+            while (queue.Count > 0)
+            {
+                Vector2Int pos = queue.Dequeue();
+                for (int i = 0; i < Cardinal.Length; i++)
+                {
+                    Vector2Int step = Cardinal[i];
+                    Vector2Int next = pos + step;
+                    if (!Inside(data, next) || data.gridMask[next.y, next.x] == 0 || safe.Contains(next))
+                        continue;
+                    if (!Allows(data.lilyPadDirections[pos.y, pos.x], step))
+                        continue;
+                    if (CracksOnExit(data.lilyPadTypes[next.y, next.x]) || data.lilyPadTypes[next.y, next.x] == LilyPadType.Trap)
+                        continue;
+
+                    safe.Add(next);
+                    queue.Enqueue(next);
+                }
+            }
+
+            for (int y = 0; y < data.rows; y++)
+            {
+                for (int x = 0; x < data.cols; x++)
+                {
+                    var fly = new Vector2Int(x, y);
+                    if (!safe.Contains(fly))
+                        continue;
+
+                    LilyPadType type = data.lilyPadTypes[y, x];
+                    if (type != LilyPadType.Normal)
+                        continue;
+                    if (!Reaches(data, fly, 0, win, crackId))
+                        continue;
+
+                    spots.Add(fly);
+                }
+            }
+
+            return spots;
+        }
+
+        static bool CracksOnExit(LilyPadType type)
+        {
+            return type == LilyPadType.Breakable || type == LilyPadType.Gate;
+        }
+
+        static Dictionary<Vector2Int, int> CrackIds(LevelData data)
+        {
+            var crackId = new Dictionary<Vector2Int, int>();
+            for (int y = 0; y < data.rows; y++)
+            {
+                for (int x = 0; x < data.cols; x++)
+                {
+                    if (data.gridMask[y, x] == 0)
+                        continue;
+                    if (!CracksOnExit(data.lilyPadTypes[y, x]))
+                        continue;
+                    crackId[new Vector2Int(x, y)] = crackId.Count;
+                }
+            }
+
+            return crackId;
+        }
+
+        static bool Reaches(LevelData data, Vector2Int from, int mask, Vector2Int win, Dictionary<Vector2Int, int> crackId)
+        {
+            var seen = new HashSet<long>();
+            var queue = new Queue<Vector2Int>();
+            var masks = new Queue<int>();
+            queue.Enqueue(from);
+            masks.Enqueue(mask);
+            seen.Add(Pack(from, mask, data.cols));
+
+            while (queue.Count > 0)
+            {
+                Vector2Int pos = queue.Dequeue();
+                int currentMask = masks.Dequeue();
+                if (pos == win)
+                    return true;
+
+                PushMoves(data, pos, currentMask, crackId, seen, queue, masks);
+            }
+
+            return false;
+        }
+
+        static void PushMoves(LevelData data, Vector2Int pos, int mask, Dictionary<Vector2Int, int> crackId, HashSet<long> seen, Queue<Vector2Int> queue, Queue<int> masks)
+        {
+            LilyPadType here = data.lilyPadTypes[pos.y, pos.x];
+            for (int i = 0; i < Cardinal.Length; i++)
+            {
+                Vector2Int step = Cardinal[i];
+                Vector2Int next = pos + step;
+                if (!Inside(data, next) || data.gridMask[next.y, next.x] == 0)
+                    continue;
+                if (!Allows(data.lilyPadDirections[pos.y, pos.x], step))
+                    continue;
+
+                LilyPadType nextType = data.lilyPadTypes[next.y, next.x];
+                if (nextType == LilyPadType.Trap)
+                    continue;
+
+                int nextMask = mask;
+                if (CracksOnExit(here) && crackId.ContainsKey(pos))
+                    nextMask |= 1 << crackId[pos];
+                if (CracksOnExit(nextType) && crackId.ContainsKey(next) && (mask & (1 << crackId[next])) != 0)
+                    continue;
+
+                long key = Pack(next, nextMask, data.cols);
+                if (!seen.Add(key))
+                    continue;
+
+                queue.Enqueue(next);
+                masks.Enqueue(nextMask);
+            }
+        }
+
+        static long Pack(Vector2Int pos, int mask, int cols)
+        {
+            return ((long)mask << 20) | (uint)(pos.y * cols + pos.x);
         }
 
         static int Span(List<Vector2Int> path)
